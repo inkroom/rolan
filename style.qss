@@ -1,0 +1,12 @@
+QMainWindow{
+  background-color:white;
+}
+
+ItemWidget{
+
+padding: 20px;
+
+}
+ItemWidget:hover{
+background-color:rgb(164, 222, 200);
+}
