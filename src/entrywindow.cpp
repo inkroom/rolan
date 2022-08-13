@@ -25,7 +25,7 @@ EntryWindow::EntryWindow(CustomTitleBar *titleBar, QWidget *parent)
 
     if (titleBar) {
         vlayout->addWidget(titleBar);
-        this->setWindowFlags(Qt::Dialog  | Qt::CustomizeWindowHint);
+        this->setWindowFlags(Qt::Dialog | Qt::Tool  | Qt::CustomizeWindowHint);
     }
 
     vlayout->addLayout(layout);

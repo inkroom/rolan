@@ -40,6 +40,7 @@ int main(int argc, char *argv[]) {
 
 
     EntryWindow w(new CustomTitleBar());
+    w.setWindowTitle("Rolan");
     w.show();
 
     // 移到主屏幕中央
@@ -53,6 +54,8 @@ int main(int argc, char *argv[]) {
     QObject::connect(&hotkey, &QHotkey::activated, qApp, [&]() {
         if (w.isHidden()) {
             w.show();
+        } else if(!w.isActiveWindow()){
+            w.activateWindow();
         } else {
             w.hide();
         }
