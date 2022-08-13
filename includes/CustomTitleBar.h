@@ -11,6 +11,11 @@
 #include <QWidget>
 #include <QHBoxLayout>
 #include <QPushButton>
+#include <QLabel>
+
+#define CUSTOM_TITLE_HEIGHT 30
+#define CUSTOM_TITLE_BUTTON_HEIGHT CUSTOM_TITLE_HEIGHT
+#define CUSTOM_TITLE_BUTTON_WIDTH CUSTOM_TITLE_HEIGHT
 
 class CustomTitleBar : public QWidget{
 
@@ -26,6 +31,7 @@ public:
     ~CustomTitleBar();
 
 
+    void paintEvent(QPaintEvent *event);
 };
 
 

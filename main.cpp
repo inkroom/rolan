@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
     }
 
 
-    EntryWindow w;
+    EntryWindow w(new CustomTitleBar());
     w.show();
 
     // 移到主屏幕中央

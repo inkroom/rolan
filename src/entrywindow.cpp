@@ -21,6 +21,7 @@ EntryWindow::EntryWindow(CustomTitleBar *titleBar, QWidget *parent)
     layout = new QGridLayout();
 
     vlayout = new QVBoxLayout();
+    vlayout->setContentsMargins(0,0,0,0);
 
     if (titleBar) {
         vlayout->addWidget(titleBar);
