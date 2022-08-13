@@ -33,7 +33,10 @@ Q_OBJECT
     QString filePath;
 
     QJsonArray data;
-
+    /**
+     * 实现窗口移动
+     */
+    QPoint last;
 public:
     EntryWindow(CustomTitleBar *titleBar = nullptr, QWidget *parent = nullptr);
 
@@ -53,6 +56,10 @@ protected:
     void mouseDoubleClickEvent(QMouseEvent *event);
 
     void dropEvent(QDropEvent *event);
+
+    void mousePressEvent(QMouseEvent *e);
+    void mouseMoveEvent(QMouseEvent *e);
+    void mouseReleaseEvent(QMouseEvent *e);
 
 private:
     /**

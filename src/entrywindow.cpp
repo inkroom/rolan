@@ -25,7 +25,7 @@ EntryWindow::EntryWindow(CustomTitleBar *titleBar, QWidget *parent)
 
     if (titleBar) {
         vlayout->addWidget(titleBar);
-        this->setWindowFlags(Qt::FramelessWindowHint | Qt::MSWindowsFixedSizeDialogHint | Qt::CustomizeWindowHint);
+        this->setWindowFlags(Qt::Dialog  | Qt::CustomizeWindowHint);
     }
 
     vlayout->addLayout(layout);
@@ -270,4 +270,23 @@ void EntryWindow::saveItem(Item item) {
 
     this->data.append(value);
     this->save();
+}
+
+
+void EntryWindow::mousePressEvent(QMouseEvent *e)
+{
+    last = e->globalPos();
+}
+void EntryWindow::mouseMoveEvent(QMouseEvent *e)
+{
+    int dx = e->globalX() - last.x();
+    int dy = e->globalY() - last.y();
+    last = e->globalPos();
+    move(x()+dx, y()+dy);
+}
+void EntryWindow::mouseReleaseEvent(QMouseEvent *e)
+{
+    int dx = e->globalX() - last.x();
+    int dy = e->globalY() - last.y();
+    move(x()+dx, y()+dy);
 }

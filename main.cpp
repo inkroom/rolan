@@ -58,5 +58,7 @@ int main(int argc, char *argv[]) {
         }
     });
 
+//    QObject::connect(&w, SIGNAL())
+
     return a.exec();
 }
