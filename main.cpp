@@ -40,7 +40,6 @@ int main(int argc, char *argv[]) {
 
 
     EntryWindow w;
-    w.setWindowFlags(Qt::FramelessWindowHint | Qt::MSWindowsFixedSizeDialogHint | Qt::CustomizeWindowHint);
     w.show();
 
     // 移到主屏幕中央

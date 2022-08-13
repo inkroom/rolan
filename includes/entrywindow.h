@@ -1,5 +1,6 @@
 #ifndef ENTRYWINDOW_H
 #define ENTRYWINDOW_H
+
 #include "ApplicationItem.h"
 #include <QMainWindow>
 #include <QGridLayout>
@@ -14,17 +15,18 @@
 #include <QJsonDocument>
 #include <QTextStream>
 #include <QJsonArray>
-class EntryWindow : public QMainWindow
-{
-    Q_OBJECT
+#include "CustomTitleBar.h"
+
+class EntryWindow : public QMainWindow {
+Q_OBJECT
 
 
-    QWidget * center;
+    QWidget *center;
 
 
-    QGridLayout * layout;
+    QGridLayout *layout;
 
-    QVBoxLayout * vlayout;
+    QVBoxLayout *vlayout;
 
     QList<Item> list;
 
@@ -33,19 +35,25 @@ class EntryWindow : public QMainWindow
     QJsonArray data;
 
 public:
-    EntryWindow(QWidget *parent=nullptr);
+    EntryWindow(CustomTitleBar *titleBar = nullptr, QWidget *parent = nullptr);
 
     void addItem(Item item);
+
     /**
      * @brief saveItem 保存item到文件
      * @param item
      */
     void saveItem(Item item);
+
     ~EntryWindow();
+
 protected:
     void dragEnterEvent(QDragEnterEvent *event);
+
     void mouseDoubleClickEvent(QMouseEvent *event);
+
     void dropEvent(QDropEvent *event);
+
 private:
     /**
      * 将数据持久化到文件
