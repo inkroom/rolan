@@ -10,11 +10,10 @@
 #include <QMouseEvent>
 // itemWidget
 
-ItemWidget::ItemWidget(Item item, QWidget *parent): QWidget(parent)
-{
+ItemWidget::ItemWidget(Item item, QWidget *parent) : QWidget(parent) {
 
     this->item = item;
-    layoutWidget  =new QWidget(this);
+    layoutWidget = new QWidget(this);
 //    layoutWidget->setSizePolicy(QSizePolicy::Expanding,QSizePolicy::Expanding);
     layout = new QVBoxLayout(layoutWidget);
 
@@ -27,10 +26,10 @@ ItemWidget::ItemWidget(Item item, QWidget *parent): QWidget(parent)
 //    icon->setGeometry(0,0,50,50);
 //    layout->setAlignment(Qt::AlignHCenter);
 
-    layout->addWidget(icon,0,Qt::AlignHCenter);
-    layout->addWidget(label,0,Qt::AlignHCenter);
+    layout->addWidget(icon, 0, Qt::AlignHCenter);
+    layout->addWidget(label, 0, Qt::AlignHCenter);
 
-    this->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Fixed);
+    this->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
 //    menubar->setObjectName(QString::fromUtf8("menubar"));
 
 //    layoutWidget->setObjectName(QString::fromUtf8("ItemWidget"));
@@ -46,43 +45,93 @@ ItemWidget::ItemWidget(Item item, QWidget *parent): QWidget(parent)
     setContextMenuPolicy(Qt::CustomContextMenu);
 
     menu = new QMenu(this);
-    QAction* dAction = new QAction();
+    QAction *dAction = new QAction();
     dAction->setText("删除");
 
 
     menu->addAction(dAction);
-qDebug()<<"item,"<<item.label;
+    qDebug() << "item," << item.label;
 
 //    connect(menu, SIGNAL(triggered(QAction *)),this, SLOT(deleteActionSlot(QAction *)));
 
-    connect(menu, &QMenu::triggered,this,[&](){
-      //  qDebug()<<"删除menu被触发"<<this->item.label;
-       emit this->deleteAction(this->item);
+    connect(menu, &QMenu::triggered, this, [&]() {
+        //  qDebug()<<"删除menu被触发"<<this->item.label;
+        emit this->deleteAction(this->item);
 
     });
 
 }
 
-void ItemWidget::setIcon(QPixmap icon){
-    qDebug()<<"icon-w:"<<icon.width();
-    qDebug()<<"icon-h"<<icon.height();
-    qDebug()<<"icon size ="<<this->icon->size().width();
-    qDebug()<<"icon size ="<<this->icon->size().height();
+void ItemWidget::setIcon(QPixmap icon) {
+    qDebug() << "icon-w:" << icon.width();
+    qDebug() << "icon-h" << icon.height();
+    qDebug() << "icon size =" << this->icon->size().width();
+    qDebug() << "icon size =" << this->icon->size().height();
 //    icon = icon.scaled(this->icon->size().width(), this->icon->size().height(), Qt::KeepAspectRatio, Qt::SmoothTransformation);
 
-    qDebug()<<"缩放后icon-w:"<<icon.width();
-    qDebug()<<"缩放后icon-h"<<icon.height();
-    qDebug()<<"缩放后icon size ="<<this->icon->size().width();
-    qDebug()<<"缩放后icon size ="<<this->icon->size().height();
+    qDebug() << "缩放后icon-w:" << icon.width();
+    qDebug() << "缩放后icon-h" << icon.height();
+    qDebug() << "缩放后icon size =" << this->icon->size().width();
+    qDebug() << "缩放后icon size =" << this->icon->size().height();
 //    this->icon->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Minimum);
     this->icon->setAlignment(Qt::AlignCenter);
     this->icon->setPixmap(icon);
 
 }
 
-void ItemWidget::setText(QString text){
+QString elidedLineText(QWidget *pWidget, int nLine, QString strText) {
+    if (nLine == 0)
+        return "";
 
-    this->label->setSizePolicy(QSizePolicy::Minimum,QSizePolicy::Fixed);
+    QFontMetrics fontMetrics(pWidget->font());
+
+    if (nLine == 1) {
+        return fontMetrics.elidedText(strText, Qt::ElideRight, pWidget->width());
+    }
+
+    QStringList strListLine;
+
+    for (int i = 0; i < strText.size(); i++) {
+        if (fontMetrics.width(strText.left(i)) >= pWidget->width()) {
+            strListLine.append(strText.left(i));
+            if (strListLine.size() == nLine) {
+                break;
+            }
+            strText = strText.right(strText.size() - i);
+            i = 0;
+        }
+    }
+
+    if (strListLine.size() < nLine) {
+        if (!strText.isEmpty()) {
+            strListLine.append(strText);
+        }
+    }
+
+    bool bHasElided = true;
+    if (fontMetrics.width(strText) < pWidget->width()) {
+        bHasElided = false;
+    }
+
+    if (bHasElided && !strListLine.isEmpty()) {
+        QString strLast = strListLine.last();
+        QString strElided = "...";
+        strLast.insert(strLast.length(), strElided);
+        while (fontMetrics.width(strLast) >= pWidget->width()) {
+            strLast = strLast.replace(0, 1, "");
+        }
+
+        strListLine.replace(strListLine.count() - 1, strLast);
+    }
+    QString strResult = strListLine.join("\n");
+
+    return strResult;
+}
+
+
+void ItemWidget::setText(QString text) {
+
+    this->label->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     this->label->setAlignment(Qt::AlignCenter);
     QFont font;
     font.setPointSize(16);
@@ -90,7 +139,10 @@ void ItemWidget::setText(QString text){
     this->setToolTip(text);
 
     QFontMetrics fontWidth(font);//得到每个字符的宽度
-    text = fontWidth.elidedText(text, Qt::ElideRight, 70);//最大宽度170px
+//    text = fontWidth.elidedText(text, Qt::ElideRight, 70);//最大宽度170px
+//text.replace(QChar(' '),QChar('\n'));
+//this->label->adjustSize();
+    text = elidedLineText(label, 2, text);
     this->label->setText(text);//显示省略号的字符串
 
     this->label->setFont(font);
@@ -98,13 +150,13 @@ void ItemWidget::setText(QString text){
 }
 
 // 实现方法以使用qss样式
-void ItemWidget::paintEvent(QPaintEvent *event){
+void ItemWidget::paintEvent(QPaintEvent *event) {
 
-QStyleOption opt;
-opt.init(this);
+    QStyleOption opt;
+    opt.init(this);
     QPainter painter(this);
 
-    style()->drawPrimitive(QStyle::PE_Widget,&opt,&painter,this);
+    style()->drawPrimitive(QStyle::PE_Widget, &opt, &painter, this);
 
 //    qDebug()<<"启动绘制："<<this->geometry();
 
@@ -122,10 +174,10 @@ opt.init(this);
 
 // 鼠标点击事件
 
-void ItemWidget::mouseReleaseEvent(QMouseEvent *event){
-    qDebug()<<"鼠标点击了:"<<item.path;
+void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {
+    qDebug() << "鼠标点击了:" << item.path;
 
-    if(event->button() ==Qt::RightButton){//右键弹出popMenu
+    if (event->button() == Qt::RightButton) {//右键弹出popMenu
         menu->exec(QCursor::pos());
         return;
     }
@@ -133,25 +185,24 @@ void ItemWidget::mouseReleaseEvent(QMouseEvent *event){
     QFileInfo info(item.path);
 
 
-    bool needConsole=false;
-
+    bool needConsole = false;
 
 
     QString command;
 
 
-    if(item.path.endsWith(".bat")){
-        if(item.needConsole==0||item.needConsole==1){// 输出控制台
+    if (item.path.endsWith(".bat")) {
+        if (item.needConsole == 0 || item.needConsole == 1) {// 输出控制台
             needConsole = true;
             command = "start cmd /k \"%1 && exit\"";
-        }else if(item.needConsole==2){//bat不输出控制台
+        } else if (item.needConsole == 2) {//bat不输出控制台
             command = "%1";
         }
 
-    }else{
-        if(item.needConsole==0 ||item.needConsole==2){//非bat默认不输出控制台
+    } else {
+        if (item.needConsole == 0 || item.needConsole == 2) {//非bat默认不输出控制台
             command = "%1";
-        }else if(item.needConsole==1){//输出控制台
+        } else if (item.needConsole == 1) {//输出控制台
             command = "start %1";
             needConsole = true;
         }
@@ -160,7 +211,7 @@ void ItemWidget::mouseReleaseEvent(QMouseEvent *event){
 
     command = command.arg(item.path);
 
-    qDebug()<<"执行的命令:"<<command;
+    qDebug() << "执行的命令:" << command;
 
 //    if(needConsole){//需要控制台
 //        system((command).toUtf8().data());
@@ -194,12 +245,13 @@ void ItemWidget::mouseReleaseEvent(QMouseEvent *event){
 
 
 }
+
 // 空实现，只为屏蔽事件传递
-void ItemWidget::mouseDoubleClickEvent(QMouseEvent *event){
+void ItemWidget::mouseDoubleClickEvent(QMouseEvent *event) {
 
 }
 
-ItemWidget::~ItemWidget(){
+ItemWidget::~ItemWidget() {
     delete layout;
     delete layoutWidget;
     delete icon;
