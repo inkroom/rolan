@@ -12,7 +12,7 @@
 #include <QJsonArray>
 #include <QJsonObject>
 
-EntryWindow::EntryWindow(QWidget *parent)
+EntryWindow::EntryWindow(CustomTitleBar *titleBar, QWidget *parent)
         : QMainWindow(parent) {
 
     center = new QWidget;
@@ -21,7 +21,12 @@ EntryWindow::EntryWindow(QWidget *parent)
     layout = new QGridLayout();
 
     vlayout = new QVBoxLayout();
+    vlayout->setContentsMargins(0,0,0,0);
 
+    if (titleBar) {
+        vlayout->addWidget(titleBar);
+        this->setWindowFlags(Qt::Dialog | Qt::Tool  | Qt::CustomizeWindowHint);
+    }
 
     vlayout->addLayout(layout);
     vlayout->addStretch(1);
@@ -198,7 +203,7 @@ void EntryWindow::save() {
 
 void EntryWindow::addItem(Item item) {
 
-    qDebug() << item.index<< "  新增item<<" << item.path;
+    qDebug() << item.index << "  新增item<<" << item.path;
     ItemWidget *itemWidget = new ItemWidget(item);
     int i = list.size();
 
@@ -213,12 +218,13 @@ void EntryWindow::addItem(Item item) {
         qDebug() << "要删除 " << it.index;
 
 
-        qDebug()<<"当前一共有<<"<<QString::number(this->list.size())<<"  "<<QString::number(this->data.size());
+        qDebug() << "当前一共有<<" << QString::number(this->list.size()) << "  " << QString::number(this->data.size());
         // it.index不一定是在数组中的下标，所以要遍历删除
-        for(int i =0;i<this->list.size();i++){
-            qDebug()<<" i="+QString::number(i)<<" "<<this->list.at(i).label<<" it.label="<<it.label<<" index = "<<this->list.at(i).index<<" it.index="<<it.index;
-            if(this->list.at(i).index == it.index){
-                qDebug()<<"移除第"<<i<<"个元素 "<<this->list.at(i).label;
+        for (int i = 0; i < this->list.size(); i++) {
+            qDebug() << " i=" + QString::number(i) << " " << this->list.at(i).label << " it.label=" << it.label
+                     << " index = " << this->list.at(i).index << " it.index=" << it.index;
+            if (this->list.at(i).index == it.index) {
+                qDebug() << "移除第" << i << "个元素 " << this->list.at(i).label;
                 this->list.removeAt(i);
                 this->data.removeAt(i);
                 break;
@@ -239,7 +245,7 @@ void EntryWindow::addItem(Item item) {
             delete layoutItem;
         }
 //
-        for (const auto &i_item: newList){
+        for (const auto &i_item: newList) {
             addItem(i_item);
             this->list.append(i_item);//重新加入数据
 
@@ -264,4 +270,23 @@ void EntryWindow::saveItem(Item item) {
 
     this->data.append(value);
     this->save();
+}
+
+
+void EntryWindow::mousePressEvent(QMouseEvent *e)
+{
+    last = e->globalPos();
+}
+void EntryWindow::mouseMoveEvent(QMouseEvent *e)
+{
+    int dx = e->globalX() - last.x();
+    int dy = e->globalY() - last.y();
+    last = e->globalPos();
+    move(x()+dx, y()+dy);
+}
+void EntryWindow::mouseReleaseEvent(QMouseEvent *e)
+{
+    int dx = e->globalX() - last.x();
+    int dy = e->globalY() - last.y();
+    move(x()+dx, y()+dy);
 }

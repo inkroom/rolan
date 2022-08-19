@@ -21,8 +21,10 @@ int main(int argc, char *argv[]) {
     QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true);
     qDebug() << QDir::currentPath();
 
-    EntryWindow w;
-    w.setWindowFlags(Qt::FramelessWindowHint | Qt::MSWindowsFixedSizeDialogHint | Qt::CustomizeWindowHint);
+
+
+    EntryWindow w(new CustomTitleBar());
+    w.setWindowTitle("Rolan");
     w.show();
 
 
@@ -40,6 +42,8 @@ int main(int argc, char *argv[]) {
     QObject::connect(&hotkey, &QHotkey::activated, qApp, [&]() {
         if (w.isHidden()) {
             w.show();
+        } else if(!w.isActiveWindow()){
+            w.activateWindow();
         } else {
             w.hide();
         }
