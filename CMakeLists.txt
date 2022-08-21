@@ -5,13 +5,19 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
+set(LINK_QT_STATIC TRUE)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(QT_STATIC_PATH $ENV{QT_STATIC_DIR} )
 
+message("static path ${QT_STATIC_PATH} = $ENV{QT_STATIC_DIR}")
 
 if (WIN32)
     set(CMAKE_PREFIX_PATH $ENV{QT_DIR}/$ENV{QT_VERSION}/mingw73_64/lib/cmake)
 else ()
     aux_source_directory(unix PLATFORM_SRC)
-    set(CMAKE_PREFIX_PATH $ENV{QT_DIR}/$ENV{QT_VERSION}/gcc_64/lib/cmake)
+    set(CMAKE_PREFIX_PATH ${QT_STATIC_PATH}/lib/cmake)
+    message("static ${CMAKE_PREFIX_PATH}")
+#    set(CMAKE_PREFIX_PATH $ENV{QT_DIR}/$ENV{QT_VERSION}/gcc_64/lib/cmake)
 endif ()
 
 include(FetchContent)
@@ -23,6 +29,8 @@ endif ()
 FetchContent_MakeAvailable(qhotkey)
 
 
+message("qt dir=${CMAKE_PREFIX_PATH}")
+
 #add_subdirectory(QHotkey)
 
 # file(GLOB_RESOURCE QHotkey QHotkey/QHotkey/*)
@@ -33,7 +41,14 @@ FILE(GLOB_RECURSE HEADER_DIR CONFIGURE_DEPENDS includes/*.h)
 
 include_directories(includes QHotkey/QHotkey)
 
-find_package(Qt5 COMPONENTS
+
+include_directories(${QT_STATIC_PATH}/include/QtCore ${QT_STATIC_PATH}/include/QtGui ${QT_STATIC_PATH}/include/QtWidgets)
+
+link_directories(${QT_STATIC_PATH}/lib/QtCore ${QT_STATIC_PATH}/lib/QtGui ${QT_STATIC_PATH}/lib/QtWidgets)
+message("qt link ${QT_STATIC_PATH}/lib/QtCore")
+#
+find_package(Qt5
+        COMPONENTS
         Core
         Gui
         Widgets
