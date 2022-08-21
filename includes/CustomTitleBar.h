@@ -24,6 +24,8 @@ class CustomTitleBar : public QWidget{
 private:
     QHBoxLayout* layout;
 
+    QLabel* title;
+
     QPushButton* quitButton;
 
 public:
@@ -32,6 +34,9 @@ public:
 
 
     void paintEvent(QPaintEvent *event);
+protected:
+    //设置界面标题与图标
+    virtual bool eventFilter(QObject *obj, QEvent *event);
 };
 
 
