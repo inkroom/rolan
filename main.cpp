@@ -26,6 +26,7 @@ int main(int argc, char *argv[]) {
     EntryWindow w(new CustomTitleBar());
     w.setWindowTitle("Rolan");
     w.show();
+    w.activateWindow();
 
 
     // 移到主屏幕中央
@@ -42,10 +43,14 @@ int main(int argc, char *argv[]) {
     QObject::connect(&hotkey, &QHotkey::activated, qApp, [&]() {
         if (w.isHidden()) {
             w.show();
+            w.activateWindow();//linux 平台 show 之后不会认为窗口被激活，会导致下一次响应进入下一个分支，而不是响应hide
+            qDebug()<<"hot key show";
         } else if(!w.isActiveWindow()){
             w.activateWindow();
+            qDebug()<<"hot key active";
         } else {
             w.hide();
+            qDebug()<<"hot key hidden";
         }
     });
 
