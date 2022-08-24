@@ -15,12 +15,24 @@
 #include <QDesktopWidget>
 #include <QScreen>
 #include <QMessageBox>
+#include <QSettings>
+
 int main(int argc, char *argv[]) {
     QApplication a(argc, argv);
 
     QLoggingCategory::defaultCategory()->setEnabled(QtDebugMsg, true);
     qDebug() << QDir::currentPath();
 
+    QSettings settings(QDir::currentPath()+"/"+"setting.ini",QSettings::IniFormat);
+
+
+    QVariant h = settings.value("hotkey/show");
+
+    if (h.isNull()){
+        settings.beginGroup("hotkey");
+        settings.setValue("show","Alt+C");
+        settings.endGroup();
+    }
 
 
     EntryWindow w(new CustomTitleBar());
@@ -34,7 +46,7 @@ int main(int argc, char *argv[]) {
     QPoint point(d->size().width() / 2 - w.width() / 2, d->size().height() / 2 - w.height() / 2);
     w.move(point);
 
-    QHotkey hotkey(QKeySequence("Alt+C"), true, &a);
+    QHotkey hotkey(QKeySequence(settings.value("hotkey/show").toString()), true, &a);
     if(!hotkey.isRegistered()){
         QMessageBox::information(&w,"快捷键","快捷键注册失败，可能是快捷键冲突","确认");
     }
