@@ -8,8 +8,82 @@
 #include <mmdeviceapi.h>
 #include <endpointvolume.h>
 #include <QtWin>
+#include "ApplicationItem.h"
 
 
+// 鼠标点击事件
+
+void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {
+    qDebug() << "鼠标点击了:" << item.path;
+
+    if (event->button() == Qt::RightButton) {//右键弹出popMenu
+        menu->exec(QCursor::pos());
+        return;
+    }
+
+    QFileInfo info(item.path);
+
+
+    bool needConsole = false;
+
+
+    QString command;
+
+
+    if (item.path.endsWith(".bat")) {
+        if (item.needConsole == 0 || item.needConsole == 1) {// 输出控制台
+            needConsole = true;
+            command = "start cmd /k \"%1 && exit\"";
+        } else if (item.needConsole == 2) {//bat不输出控制台
+            command = "%1";
+        }
+
+    } else {
+        if (item.needConsole == 0 || item.needConsole == 2) {//非bat默认不输出控制台
+            command = "%1";
+        } else if (item.needConsole == 1) {//输出控制台
+            command = "start %1";
+            needConsole = true;
+        }
+    }
+
+
+    command = command.arg(item.path);
+
+    qDebug() << "执行的命令:" << command;
+
+    if (needConsole) {//需要控制台
+        system((command).toUtf8().data());
+
+    } else {
+        QProcess *po = new QProcess;
+        po->start(command);
+    }
+
+
+    event->ignore();
+
+
+
+//    if(info.isExecutable()){// 其余可执行文件不需要控制台
+//        qDebug()<<"可执行";
+//        system((command).toUtf8().data());
+
+////         system(item.path.toUtf8().data());
+
+////        QProcess*po = new QProcess;
+////        po->start(item.path);
+//        emit clicked(item);
+////        QString s = "start "+item.path+" \n";
+////        po->write(s.toUtf8());
+//    }else{
+//        qDebug()<<"不可执行:"<<item.path;
+//    }
+
+
+
+
+}
 
 // 获取文件图标
 HICON fileIcon(std::string extention,int* iIcon)

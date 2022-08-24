@@ -9,6 +9,11 @@
 //#include <filesystem>
 #include <QFileInfo>
 #include <QDir>
+#include "ApplicationItem.h"
+#include <QMouseEvent>
+#include <QMessageBox>
+#include <stdlib.h>
+#include <QProcess>
 
 bool fileExist(QString path) {
     return QFileInfo::exists(path);
@@ -99,7 +104,54 @@ QPixmap getFileIcon(std::string path) {
 
         file.close();
 
-    } else{
+    } else {
         return QPixmap(":/img/200.png").scaled(64, 64);
     }
+}
+
+
+
+// 鼠标点击事件
+
+void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {
+    qDebug() << "鼠标点击了:" << item.path;
+
+    if (event->button() == Qt::RightButton) {//右键弹出popMenu
+        menu->exec(QCursor::pos());
+        return;
+    }
+
+    QFile file(item.path);
+    if (file.open(QFile::ReadOnly)) {
+        QTextStream in(&file);
+        while (!in.atEnd()) {
+            QString line = in.readLine();
+            if (line.startsWith("Exec=")) {//
+                qDebug() << "line = [" << line << "]";
+                line = line.remove(0, 5);
+                qDebug() << "文件=" << item.path << "的Exec=[" << line << "]";
+
+
+                auto *po = new QProcess;
+                po->start(line);//这种子进程的方式，如果父进程退出，子进程也会被结束
+                connect(po,static_cast<void(QProcess::*)(int ,QProcess::ExitStatus)>(&QProcess::finished),this,[=](int exitCode,QProcess::ExitStatus exitStatus){
+                    delete po;
+                });
+                emit clickAction(item);
+//                system(line.toStdString().c_str()); system调用会阻塞线程
+
+            }
+        }
+
+        file.close();
+
+    } else {
+        qDebug() << "文件打开失败";
+        QMessageBox::information(this, "执行", "文件" + item.label + "打开失败", "确认");
+    }
+
+
+    event->ignore();
+
+
 }

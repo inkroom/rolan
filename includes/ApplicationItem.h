@@ -44,6 +44,7 @@ public:
 protected:
     void paintEvent(QPaintEvent *event);
 signals:
+    void clickAction(Item item);
     void deleteAction(Item item);
 
 };

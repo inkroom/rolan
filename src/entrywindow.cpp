@@ -21,11 +21,11 @@ EntryWindow::EntryWindow(CustomTitleBar *titleBar, QWidget *parent)
     layout = new QGridLayout();
 
     vlayout = new QVBoxLayout();
-    vlayout->setContentsMargins(0,0,0,0);
+    vlayout->setContentsMargins(0, 0, 0, 0);
 
     if (titleBar) {
         vlayout->addWidget(titleBar);
-        this->setWindowFlags(Qt::Dialog | Qt::Tool  | Qt::CustomizeWindowHint);
+        this->setWindowFlags(Qt::Dialog | Qt::Tool | Qt::CustomizeWindowHint);
     }
 
     vlayout->addLayout(layout);
@@ -83,7 +83,7 @@ EntryWindow::EntryWindow(CustomTitleBar *titleBar, QWidget *parent)
 
                     Item item;
                     item.path = map.take("path").toString();
-                    item.label = QString::number(i) + map.take("label").toString();
+                    item.label = map.take("label").toString();
                     item.needConsole = map.take("needConsole").toInt();
                     item.index = i;
 
@@ -211,6 +211,11 @@ void EntryWindow::addItem(Item item) {
     qDebug() << "row=" << (i / 3) << "  column=" << (i - (i / 3) * 3) << " i=" << i;
     layout->addWidget(itemWidget, i / 3, i - (i / 3) * 3);
 
+    // 监听点击事件
+    connect(itemWidget, &ItemWidget::clickAction, this, [&](Item it) {
+        this->hide();
+    });
+
     // 监听删除事件
     connect(itemWidget, &ItemWidget::deleteAction, this, [&](Item it) {
         qDebug() << "要删除 " << it.label.isEmpty();
@@ -273,20 +278,19 @@ void EntryWindow::saveItem(Item item) {
 }
 
 
-void EntryWindow::mousePressEvent(QMouseEvent *e)
-{
+void EntryWindow::mousePressEvent(QMouseEvent *e) {
     last = e->globalPos();
 }
-void EntryWindow::mouseMoveEvent(QMouseEvent *e)
-{
+
+void EntryWindow::mouseMoveEvent(QMouseEvent *e) {
     int dx = e->globalX() - last.x();
     int dy = e->globalY() - last.y();
     last = e->globalPos();
-    move(x()+dx, y()+dy);
+    move(x() + dx, y() + dy);
 }
-void EntryWindow::mouseReleaseEvent(QMouseEvent *e)
-{
+
+void EntryWindow::mouseReleaseEvent(QMouseEvent *e) {
     int dx = e->globalX() - last.x();
     int dy = e->globalY() - last.y();
-    move(x()+dx, y()+dy);
+    move(x() + dx, y() + dy);
 }
