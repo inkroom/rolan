@@ -79,6 +79,56 @@ void ItemWidget::setIcon(QPixmap icon) {
 
 }
 
+QString elidedLineText(QWidget *pWidget, int nLine, QString strText) {
+    if (nLine == 0)
+        return "";
+
+    QFontMetrics fontMetrics(pWidget->font());
+
+    if (nLine == 1) {
+        return fontMetrics.elidedText(strText, Qt::ElideRight, pWidget->width());
+    }
+
+    QStringList strListLine;
+
+    for (int i = 0; i < strText.size(); i++) {
+        if (fontMetrics.width(strText.left(i)) >= pWidget->width()) {
+            strListLine.append(strText.left(i));
+            if (strListLine.size() == nLine) {
+                break;
+            }
+            strText = strText.right(strText.size() - i);
+            i = 0;
+        }
+    }
+
+    if (strListLine.size() < nLine) {
+        if (!strText.isEmpty()) {
+            strListLine.append(strText);
+        }
+    }
+
+    bool bHasElided = true;
+    if (fontMetrics.width(strText) < pWidget->width()) {
+        bHasElided = false;
+    }
+
+    if (bHasElided && !strListLine.isEmpty()) {
+        QString strLast = strListLine.last();
+        QString strElided = "...";
+        strLast.insert(strLast.length(), strElided);
+        while (fontMetrics.width(strLast) >= pWidget->width()) {
+            strLast = strLast.replace(0, 1, "");
+        }
+
+        strListLine.replace(strListLine.count() - 1, strLast);
+    }
+    QString strResult = strListLine.join("\n");
+
+    return strResult;
+}
+
+
 void ItemWidget::setText(QString text) {
 
     this->label->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
@@ -89,7 +139,10 @@ void ItemWidget::setText(QString text) {
     this->setToolTip(text);
 
     QFontMetrics fontWidth(font);//得到每个字符的宽度
-    text = fontWidth.elidedText(text, Qt::ElideRight, 70);//最大宽度170px
+//    text = fontWidth.elidedText(text, Qt::ElideRight, 70);//最大宽度170px
+//text.replace(QChar(' '),QChar('\n'));
+//this->label->adjustSize();
+    text = elidedLineText(label, 2, text);
     this->label->setText(text);//显示省略号的字符串
 
     this->label->setFont(font);

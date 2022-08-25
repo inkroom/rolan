@@ -85,7 +85,6 @@ EntryWindow::EntryWindow(CustomTitleBar *titleBar, QWidget *parent)
                     item.path = map.take("path").toString();
                     item.label = map.take("label").toString();
                     item.needConsole = map.take("needConsole").toInt();
-                    item.type = map.take("type").toInt();
                     item.index = i;
 
                     this->addItem(item);
@@ -273,7 +272,6 @@ void EntryWindow::saveItem(Item item) {
     value.insert("label", QJsonValue(item.label));
     value.insert("path", QJsonValue(item.path));
     value.insert("needConsole", QJsonValue(item.needConsole));
-    value.insert("type", QJsonValue(item.type));
 
     this->data.append(value);
     this->save();

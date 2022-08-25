@@ -12,7 +12,7 @@
 #include "ApplicationItem.h"
 #include <QMouseEvent>
 #include <QMessageBox>
-#include <cstdlib>
+#include <stdlib.h>
 #include <QProcess>
 
 bool fileExist(QString path) {
@@ -121,21 +121,7 @@ void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {
         return;
     }
 
-    if(item.type==1){//打开网页
-        system(("xdg-open "+ item.path).toStdString().c_str());
-        emit clickAction(item);
-        return;
-    }
-
-    QFileInfo info(item.path);
-    if (info.isDir()){
-        system(("xdg-open "+ item.path).toStdString().c_str());
-        emit clickAction(item);
-        return;
-    }
-
     QFile file(item.path);
-
     if (file.open(QFile::ReadOnly)) {
         QTextStream in(&file);
         while (!in.atEnd()) {
