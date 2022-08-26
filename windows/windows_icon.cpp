@@ -21,6 +21,12 @@ void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {
         return;
     }
 
+    if (item.path == 1) {//打开网页
+        system(("explorer " + item.path).toStdString().c_str());
+        emit clickAction(item);
+        return;
+    }
+
     QFileInfo info(item.path);
 
 
