@@ -21,12 +21,6 @@ void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {
         return;
     }
 
-    if (item.path == 1) {//打开网页
-        system(("explorer " + item.path).toStdString().c_str());
-        emit clickAction(item);
-        return;
-    }
-
     QFileInfo info(item.path);
 
 
@@ -65,7 +59,6 @@ void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {
         QProcess *po = new QProcess;
         po->start(command);
     }
-    emit clickAction(item);
 
 
     event->ignore();
@@ -93,40 +86,47 @@ void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 // 获取文件图标
-HICON fileIcon(std::string extention, int *iIcon) {
+HICON fileIcon(std::string extention,int* iIcon)
+{
     HICON icon = NULL;
-    if (extention.length() > 0) {
+    if (extention.length() > 0)
+    {
         LPCSTR name = extention.c_str();
 
         SHFILEINFOA info;
         // // 除了SHGFI_ICON之外还有SHGFI_LARGEICON(大图标), SHGFI_SMALLICON(小图标)
         if (SHGetFileInfoA(name,
-                           FILE_ATTRIBUTE_NORMAL,
-                           &info,
-                           sizeof(info),
-                           SHGFI_SYSICONINDEX | SHGFI_LARGEICON | SHGFI_ICON | SHGFI_USEFILEATTRIBUTES)) {
+            FILE_ATTRIBUTE_NORMAL,
+            &info,
+            sizeof(info),
+            SHGFI_SYSICONINDEX | SHGFI_LARGEICON | SHGFI_ICON | SHGFI_USEFILEATTRIBUTES))
+        {
             icon = info.hIcon;
             *iIcon = info.iIcon;
         }
     }
 
 
+
     return icon;
 }
 
 // 获取文件类型
-std::string fileType(std::string extention) {
+std::string fileType(std::string extention)
+{
 
     std::string type = "";
-    if (extention.length() > 0) {
+    if (extention.length() > 0)
+    {
         LPCSTR name = extention.c_str();
 
         SHFILEINFOA info;
         if (SHGetFileInfoA(name,
-                           FILE_ATTRIBUTE_NORMAL,
-                           &info,
-                           sizeof(info),
-                           SHGFI_TYPENAME | SHGFI_USEFILEATTRIBUTES)) {
+            FILE_ATTRIBUTE_NORMAL,
+            &info,
+            sizeof(info),
+            SHGFI_TYPENAME | SHGFI_USEFILEATTRIBUTES))
+        {
             type = info.szTypeName;
         }
     }
@@ -135,7 +135,8 @@ std::string fileType(std::string extention) {
 }
 
 // 获取文件夹图标
-HICON folderIcon() {
+HICON folderIcon()
+{
     std::string str = "folder";
     LPCSTR name = str.c_str();
 
@@ -143,10 +144,11 @@ HICON folderIcon() {
 
     SHFILEINFOA info;
     if (SHGetFileInfoA(name,
-                       FILE_ATTRIBUTE_DIRECTORY,
-                       &info,
-                       sizeof(info),
-                       SHGFI_SYSICONINDEX | SHGFI_ICON | SHGFI_USEFILEATTRIBUTES)) {
+        FILE_ATTRIBUTE_DIRECTORY,
+        &info,
+        sizeof(info),
+        SHGFI_SYSICONINDEX | SHGFI_ICON | SHGFI_USEFILEATTRIBUTES))
+    {
         icon = info.hIcon;
     }
 
@@ -154,7 +156,8 @@ HICON folderIcon() {
 }
 
 // 获取文件夹类型
-std::string folderType() {
+std::string folderType()
+{
     std::string str = "folder";
     LPCSTR name = str.c_str();
 
@@ -162,39 +165,41 @@ std::string folderType() {
 
     SHFILEINFOA info;
     if (SHGetFileInfoA(name,
-                       FILE_ATTRIBUTE_DIRECTORY,
-                       &info,
-                       sizeof(info),
-                       SHGFI_TYPENAME | SHGFI_USEFILEATTRIBUTES)) {
+        FILE_ATTRIBUTE_DIRECTORY,
+        &info,
+        sizeof(info),
+        SHGFI_TYPENAME | SHGFI_USEFILEATTRIBUTES))
+    {
         type = info.szTypeName;
     }
 
     return type;
 }
 
-HICON getLargeIcon(int index) {
-    IImageList *g_hImageList256 = NULL;
+HICON getLargeIcon(int index){
+        IImageList* g_hImageList256 = NULL;
 
-    SHGetImageList(SHIL_EXTRALARGE, IID_IImageList, (void **) &g_hImageList256);
+        SHGetImageList(SHIL_EXTRALARGE, IID_IImageList, (void**)&g_hImageList256);
 
 
-    HICON h;
+        HICON h;
 
-    HRESULT res = g_hImageList256->GetIcon(index, ILD_IMAGE, &h);
-    if (res == S_OK) {
-        return h;
-    } else {
-        return NULL;
-    }
+        HRESULT res=   g_hImageList256->GetIcon(index,ILD_IMAGE,&h);
+        if(res == S_OK){
+            return  h;
+        }else{
+          return NULL;
+        }
 
 }
 
 
-QPixmap getFileIcon(std::string path) {
+
+QPixmap getFileIcon(std::string path){
 
 
-    int index = 0;
-    HICON h = fileIcon(path, &index);
+    int index=0;
+    HICON h = fileIcon(path,&index);
 
     h = getLargeIcon(index);
 
