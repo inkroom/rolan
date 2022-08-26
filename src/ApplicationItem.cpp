@@ -35,12 +35,17 @@ ItemWidget::ItemWidget(Item item, QWidget *parent) : QWidget(parent) {
 //    layoutWidget->setObjectName(QString::fromUtf8("ItemWidget"));
 
     this->setLayout(layout);
-    QPixmap ico = getFileIcon(item.path.toStdString());
+    if (item.icon.isNull() || item.icon.isEmpty() || !QFileInfo::exists(item.icon)){
+        QPixmap ico = getFileIcon(item.path.toStdString());
 //    QFileInfo info(item.path);
 
 //    ico.save("D:/"+info.baseName()+".png");
 
-    setIcon(ico);
+        setIcon(ico);
+    } else{
+        setIcon(QPixmap(item.icon).scaled(64, 64));
+    }
+
     setText(item.label);
     setContextMenuPolicy(Qt::CustomContextMenu);
 
