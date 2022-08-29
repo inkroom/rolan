@@ -17,26 +17,31 @@
 #define CUSTOM_TITLE_BUTTON_HEIGHT CUSTOM_TITLE_HEIGHT
 #define CUSTOM_TITLE_BUTTON_WIDTH CUSTOM_TITLE_HEIGHT
 
-class CustomTitleBar : public QWidget{
+class CustomTitleBar : public QWidget {
 
-    Q_OBJECT
+Q_OBJECT
 
 private:
-    QHBoxLayout* layout;
+    QHBoxLayout *layout;
 
-    QLabel* title;
+    QLabel *title;
 
-    QPushButton* quitButton;
+    QPushButton *quitButton;
 
 public:
-    CustomTitleBar(QWidget* parent= nullptr);
+    CustomTitleBar(QWidget *parent = nullptr);
+
     ~CustomTitleBar();
 
 
     void paintEvent(QPaintEvent *event);
+
 protected:
     //设置界面标题与图标
     virtual bool eventFilter(QObject *obj, QEvent *event);
+
+signals:
+    void quit();
 };
 
 

@@ -50,6 +50,7 @@ CustomTitleBar::CustomTitleBar(QWidget *parent) : QWidget(parent) {
         box.setDefaultButton(QMessageBox::Ok);
         int r = box.exec();
         if (r == QMessageBox::Ok) {
+            emit quit();
             qApp->quit();
         }
     });
