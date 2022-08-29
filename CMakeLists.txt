@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.23)
 project(Rolan)
 
+option(USE_STATIC "enable static compile" OFF)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
@@ -9,11 +11,14 @@ set(LINK_QT_STATIC TRUE)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(QT_STATIC_PATH $ENV{QT_STATIC_DIR})
 
-message("static path ${QT_STATIC_PATH} = $ENV{QT_STATIC_DIR}")
+message("use ${USE_STATIC}")
 
 if (WIN32)
-    #    set(CMAKE_PREFIX_PATH $ENV{QT_DIR}/$ENV{QT_VERSION}/mingw73_64/lib/cmake)
-    set(CMAKE_PREFIX_PATH ${QT_STATIC_PATH}/lib/cmake)
+    if (USE_STATIC)
+        set(CMAKE_PREFIX_PATH ${QT_STATIC_PATH}/lib/cmake)
+    else ()
+        set(CMAKE_PREFIX_PATH $ENV{QT_DIR}/$ENV{QT_VERSION}/mingw73_64/lib/cmake)
+    endif ()
     message("static ${CMAKE_PREFIX_PATH}")
 else ()
     aux_source_directory(unix PLATFORM_SRC)
@@ -44,10 +49,15 @@ FILE(GLOB_RECURSE HEADER_DIR CONFIGURE_DEPENDS includes/*.h)
 include_directories(includes QHotkey/QHotkey)
 
 
-include_directories(${QT_STATIC_PATH}/include/QtCore ${QT_STATIC_PATH}/include/QtGui ${QT_STATIC_PATH}/include/QtWidgets)
+if (USE_STATIC)
+    include_directories(${QT_STATIC_PATH}/include/QtCore ${QT_STATIC_PATH}/include/QtGui ${QT_STATIC_PATH}/include/QtWidgets)
 
-link_directories(${QT_STATIC_PATH}/lib/QtCore ${QT_STATIC_PATH}/lib/QtGui ${QT_STATIC_PATH}/lib/QtWidgets)
-message("qt link ${QT_STATIC_PATH}/lib/QtCore")
+    link_directories(${QT_STATIC_PATH}/lib/QtCore ${QT_STATIC_PATH}/lib/QtGui ${QT_STATIC_PATH}/lib/QtWidgets)
+    message("qt link ${QT_STATIC_PATH}/lib/QtCore")
+else ()
+
+endif ()
+
 #
 find_package(Qt5
         COMPONENTS
@@ -66,6 +76,7 @@ target_link_libraries(${CMAKE_PROJECT_NAME}
         qhotkey
         )
 
+
 if (WIN32)
 
     add_subdirectory(windows)
@@ -73,33 +84,37 @@ if (WIN32)
     target_link_libraries(${CMAKE_PROJECT_NAME}
             platform_windows
             )
-    set(DEBUG_SUFFIX)
-    if (MSVC AND CMAKE_BUILD_TYPE MATCHES "Debug")
-        set(DEBUG_SUFFIX "d")
+    if (USE_STATIC)
+    else ()
+        set(DEBUG_SUFFIX)
+        if (MSVC AND CMAKE_BUILD_TYPE MATCHES "Debug")
+            set(DEBUG_SUFFIX "d")
+        endif ()
+        set(QT_INSTALL_PATH "${CMAKE_PREFIX_PATH}")
+        if (NOT EXISTS "${QT_INSTALL_PATH}/bin")
+            set(QT_INSTALL_PATH "${QT_INSTALL_PATH}/..")
+            if (NOT EXISTS "${QT_INSTALL_PATH}/bin")
+                set(QT_INSTALL_PATH "${QT_INSTALL_PATH}/..")
+            endif ()
+        endif ()
+        if (EXISTS "${QT_INSTALL_PATH}/plugins/platforms/qwindows${DEBUG_SUFFIX}.dll")
+            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E make_directory
+                    "$<TARGET_FILE_DIR:${PROJECT_NAME}>/plugins/platforms/")
+            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy
+                    "${QT_INSTALL_PATH}/plugins/platforms/qwindows${DEBUG_SUFFIX}.dll"
+                    "$<TARGET_FILE_DIR:${PROJECT_NAME}>/plugins/platforms/")
+        endif ()
+
+        foreach (QT_LIB Core Gui Widgets)
+            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy
+                    "${QT_INSTALL_PATH}/bin/Qt5${QT_LIB}${DEBUG_SUFFIX}.dll"
+                    "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+        endforeach (QT_LIB)
     endif ()
-#    set(QT_INSTALL_PATH "${CMAKE_PREFIX_PATH}")
-#    if (NOT EXISTS "${QT_INSTALL_PATH}/bin")
-#        set(QT_INSTALL_PATH "${QT_INSTALL_PATH}/..")
-#        if (NOT EXISTS "${QT_INSTALL_PATH}/bin")
-#            set(QT_INSTALL_PATH "${QT_INSTALL_PATH}/..")
-#        endif ()
-#    endif ()
-#    if (EXISTS "${QT_INSTALL_PATH}/plugins/platforms/qwindows${DEBUG_SUFFIX}.dll")
-#        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#                COMMAND ${CMAKE_COMMAND} -E make_directory
-#                "$<TARGET_FILE_DIR:${PROJECT_NAME}>/plugins/platforms/")
-#        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#                COMMAND ${CMAKE_COMMAND} -E copy
-#                "${QT_INSTALL_PATH}/plugins/platforms/qwindows${DEBUG_SUFFIX}.dll"
-#                "$<TARGET_FILE_DIR:${PROJECT_NAME}>/plugins/platforms/")
-#    endif ()
-#
-#    foreach (QT_LIB Core Gui Widgets)
-#        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-#                COMMAND ${CMAKE_COMMAND} -E copy
-#                "${QT_INSTALL_PATH}/bin/Qt5${QT_LIB}${DEBUG_SUFFIX}.dll"
-#                "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
-#    endforeach (QT_LIB)
+
 
 else ()
 
