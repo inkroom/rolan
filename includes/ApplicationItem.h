@@ -20,6 +20,14 @@ typedef struct Item{
      * @brief 索引，用于数据管理
      */
     unsigned short index;
+    /**
+     * @brief 类型，0代表可执行文件，1网页url，2自定义命令
+     */
+    unsigned short type;
+    /**
+     * @breif icon icon地址
+     */
+    QString icon;
 }  Item;
 
 class ItemWidget : public QWidget

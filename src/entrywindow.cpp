@@ -85,6 +85,8 @@ EntryWindow::EntryWindow(CustomTitleBar *titleBar, QWidget *parent)
                     item.path = map.take("path").toString();
                     item.label = map.take("label").toString();
                     item.needConsole = map.take("needConsole").toInt();
+                    item.type = map.take("type").toInt();
+                    item.icon = map.take("icon").toString();
                     item.index = i;
 
                     this->addItem(item);
@@ -159,7 +161,7 @@ void EntryWindow::dropEvent(QDropEvent *event) {
         qDebug() << file.baseName();
 #ifdef _WIN32
         if( file.isExecutable()){
-            Item item = {path,file.baseName(),0};
+            Item item = {path,file.baseName(),0, static_cast<unsigned short>(list.size()+1)};
             this->addItem(item);
             this->saveItem(item);
         }
@@ -167,7 +169,7 @@ void EntryWindow::dropEvent(QDropEvent *event) {
         qDebug() << "linux 拖进来的文件=" << file.baseName();
 
         if (file.suffix() == "desktop") {// linux 文件
-            Item item = {path, file.baseName(), 0};
+            Item item = {path, file.baseName(), 0,static_cast<unsigned short>(list.size()+1)};
             this->addItem(item);
             this->saveItem(item);
         }
@@ -272,7 +274,8 @@ void EntryWindow::saveItem(Item item) {
     value.insert("label", QJsonValue(item.label));
     value.insert("path", QJsonValue(item.path));
     value.insert("needConsole", QJsonValue(item.needConsole));
-
+    value.insert("type", QJsonValue(item.type));
+    value.insert("icon",QJsonValue(item.icon));
     this->data.append(value);
     this->save();
 }

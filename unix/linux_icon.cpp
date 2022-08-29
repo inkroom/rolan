@@ -120,6 +120,18 @@ void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {
         menu->exec(QCursor::pos());
         return;
     }
+    if(item.type==1){//打开网页
+        system(("xdg-open "+ item.path).toStdString().c_str());
+        emit clickAction(item);
+        return;
+    }
+
+    QFileInfo info(item.path);
+    if (info.isDir()){
+        system(("xdg-open "+ item.path).toStdString().c_str());
+        emit clickAction(item);
+        return;
+    }
 
     QFile file(item.path);
     if (file.open(QFile::ReadOnly)) {
