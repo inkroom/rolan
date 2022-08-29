@@ -6,21 +6,23 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_AUTOUIC ON)
 
-set(CMAKE_PREFIX_PATH $ENV{QT_DIR}/$ENV{QT_VERSION}/mingw73_64/lib/cmake)
+set(QT_STATIC_PATH $ENV{QT_STATIC_DIR})
+set(CMAKE_PREFIX_PATH ${QT_STATIC_PATH}/lib/cmake)
+#set(CMAKE_PREFIX_PATH $ENV{QT_DIR}/$ENV{QT_VERSION}/mingw73_64/lib/cmake)
 
-include_directories(BEFORE $ENV{QT_DIR}/$ENV{QT_VERSION}/mingw73_64/include/)
-include_directories(BEFORE $ENV{QT_DIR}/$ENV{QT_VERSION}/mingw73_64/include/QtGui)
-include_directories(BEFORE $ENV{QT_DIR}/$ENV{QT_VERSION}/mingw73_64/include/QtWinExtras)
+include_directories(BEFORE ${QT_STATIC_PATH}/include/)
+include_directories(BEFORE ${QT_STATIC_PATH}/include/QtGui)
+include_directories(BEFORE ${QT_STATIC_PATH}/include/QtWinExtras)
 
 set(DEBUG_SUFFIX)
 if (MSVC AND CMAKE_BUILD_TYPE MATCHES "Debug")
     set(DEBUG_SUFFIX "d")
 endif ()
 
-add_custom_command(TARGET platform_windows POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        "${CMAKE_PREFIX_PATH}/../../bin/Qt5WinExtras${DEBUG_SUFFIX}.dll"
-        "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
+#add_custom_command(TARGET platform_windows POST_BUILD
+#        COMMAND ${CMAKE_COMMAND} -E copy
+#        "${CMAKE_PREFIX_PATH}/../../bin/Qt5WinExtras${DEBUG_SUFFIX}.dll"
+#        "$<TARGET_FILE_DIR:${PROJECT_NAME}>")
 
 
 find_package(Qt5 COMPONENTS

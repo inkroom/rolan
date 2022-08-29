@@ -1,16 +1,16 @@
 #include "icon.h"
 #include <windows.h>
+#include <initguid.h>
 #include <shellapi.h>
 #include <winuser.h>
 #include <commctrl.h>
-#include <initguid.h>
 #include <commoncontrols.h>
-#include <mmdeviceapi.h>
-#include <endpointvolume.h>
 #include <QtWin>
 #include "ApplicationItem.h"
-
-
+#include <QDebug>
+#include <QFileInfo>
+#include <QProcess>
+#include <QMouseEvent>
 // 鼠标点击事件
 
 void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {

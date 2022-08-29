@@ -2,12 +2,12 @@
 #define APPLICATIONITEM_H
 
 #include <QString>
-#include <QPixmap>
+
 #include <QWidget>
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QMenu>
-
+#include <QPixmap>
 typedef struct Item{
 
     QString path;
