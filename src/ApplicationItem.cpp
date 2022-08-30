@@ -8,6 +8,8 @@
 #include "icon.h"
 #include <stdlib.h>
 #include <QMouseEvent>
+#include <QMimeDatabase>
+#include <QImageReader>
 // itemWidget
 
 ItemWidget::ItemWidget(Item item, QWidget *parent) : QWidget(parent) {
@@ -36,12 +38,32 @@ ItemWidget::ItemWidget(Item item, QWidget *parent) : QWidget(parent) {
 
     this->setLayout(layout);
     if (item.icon.isNull() || item.icon.isEmpty() || !QFileInfo::exists(item.icon)){
-        QPixmap ico = getFileIcon(item.path.toStdString());
+        QMimeDatabase db;
+        QMimeType mime = db.mimeTypeForFile(item.path);
+        if(mime.name().startsWith("image/")){//文件本身就是图片
+            QPixmap ico;
+            if(!ico.load(item.path)){
+                QFile file(item.path);
+                if(file.open(QIODevice::ReadOnly))
+                {
+                    if(!ico.loadFromData(file.readAll())){
+                        qDebug()<<"图片"<<item.path<<"加载失败";
+                        QImageReader re(item.path);
+                        re.setDecideFormatFromContent(true);
+                        ico = QPixmap::fromImage(re.read());
+                    }
+                }
+            }
+            setIcon(ico.scaled(64, 64));
+        } else{
+            QPixmap ico = getFileIcon(item.path.toStdString());
 //    QFileInfo info(item.path);
 
 //    ico.save("D:/"+info.baseName()+".png");
 
-        setIcon(ico);
+            setIcon(ico);
+        }
+
     } else{
         setIcon(QPixmap(item.icon).scaled(64, 64));
     }

@@ -132,9 +132,9 @@ void EntryWindow::dragEnterEvent(QDragEnterEvent *event) {
         // 取文件名，不带后缀
         QFileInfo file(path);
 #ifdef _WIN32
-        if(file.isExecutable()){//暂时只支持可执行文件
+//        if(file.isExecutable()){//暂时只支持可执行文件
             event->acceptProposedAction();
-        }
+//        }
 #elif __linux__
         qDebug() << "linux 要拖进来的文件=" << file.baseName();
 
@@ -164,7 +164,11 @@ void EntryWindow::dropEvent(QDropEvent *event) {
         qDebug() << file.baseName();
 #ifdef _WIN32
         if( file.isExecutable()){
-            Item item = {path,file.baseName(),0, static_cast<unsigned short>(list.size()+1)};
+            Item item = {path,file.baseName(),0, static_cast<unsigned short>(list.size()+1),0};
+            this->addItem(item);
+            this->saveItem(item);
+        }else{
+            Item item = {path,file.baseName(),0, static_cast<unsigned short>(list.size()+1),-1};
             this->addItem(item);
             this->saveItem(item);
         }
@@ -201,6 +205,7 @@ void EntryWindow::save() {
         doc.setArray(this->data);
 
         QTextStream d(&file);
+        d.setCodec("UTF-8");
         d << doc.toJson(QJsonDocument::JsonFormat::Indented);
     }
 }

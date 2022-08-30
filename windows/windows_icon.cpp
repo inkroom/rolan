@@ -1,6 +1,6 @@
 #include "icon.h"
 #include <windows.h>
-#include <initguid.h>
+#include <initguid.h>// 这个一定要放这里，不能删
 #include <shellapi.h>
 #include <winuser.h>
 #include <commctrl.h>
@@ -20,8 +20,12 @@ void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {
         menu->exec(QCursor::pos());
         return;
     }
-
-    if (item.path == 1) {//打开网页
+    if(item.type==-1){//其他不认识的文件
+        system(("explorer " + item.path.replace('/','\\')).toStdString().c_str());
+        emit clickAction(item);
+        return;
+    }
+    if (item.type == 1) {//打开网页
         system(("explorer " + item.path).toStdString().c_str());
         emit clickAction(item);
         return;
@@ -62,8 +66,13 @@ void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {
         system((command).toUtf8().data());
 
     } else {
-        QProcess *po = new QProcess;
-        po->start(command);
+        auto *po = new QProcess;
+        po->start(command);//这种子进程的方式，如果父进程退出，子进程也会被结束
+        connect(po, static_cast<void (QProcess::*)(int, QProcess::ExitStatus)>(&QProcess::finished), this,
+                [=](int exitCode, QProcess::ExitStatus exitStatus) {
+                    delete po;
+                });
+        emit clickAction(item);
     }
 
 
@@ -92,47 +101,40 @@ void ItemWidget::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 // 获取文件图标
-HICON fileIcon(std::string extention,int* iIcon)
-{
+HICON fileIcon(std::string extention, int *iIcon) {
     HICON icon = NULL;
-    if (extention.length() > 0)
-    {
+    if (extention.length() > 0) {
         LPCSTR name = extention.c_str();
 
         SHFILEINFOA info;
         // // 除了SHGFI_ICON之外还有SHGFI_LARGEICON(大图标), SHGFI_SMALLICON(小图标)
         if (SHGetFileInfoA(name,
-            FILE_ATTRIBUTE_NORMAL,
-            &info,
-            sizeof(info),
-            SHGFI_SYSICONINDEX | SHGFI_LARGEICON | SHGFI_ICON | SHGFI_USEFILEATTRIBUTES))
-        {
+                           FILE_ATTRIBUTE_NORMAL,
+                           &info,
+                           sizeof(info),
+                           SHGFI_SYSICONINDEX | SHGFI_LARGEICON | SHGFI_ICON | SHGFI_USEFILEATTRIBUTES)) {
             icon = info.hIcon;
             *iIcon = info.iIcon;
         }
     }
 
 
-
     return icon;
 }
 
 // 获取文件类型
-std::string fileType(std::string extention)
-{
+std::string fileType(std::string extention) {
 
     std::string type = "";
-    if (extention.length() > 0)
-    {
+    if (extention.length() > 0) {
         LPCSTR name = extention.c_str();
 
         SHFILEINFOA info;
         if (SHGetFileInfoA(name,
-            FILE_ATTRIBUTE_NORMAL,
-            &info,
-            sizeof(info),
-            SHGFI_TYPENAME | SHGFI_USEFILEATTRIBUTES))
-        {
+                           FILE_ATTRIBUTE_NORMAL,
+                           &info,
+                           sizeof(info),
+                           SHGFI_TYPENAME | SHGFI_USEFILEATTRIBUTES)) {
             type = info.szTypeName;
         }
     }
@@ -141,8 +143,7 @@ std::string fileType(std::string extention)
 }
 
 // 获取文件夹图标
-HICON folderIcon()
-{
+HICON folderIcon() {
     std::string str = "folder";
     LPCSTR name = str.c_str();
 
@@ -150,11 +151,10 @@ HICON folderIcon()
 
     SHFILEINFOA info;
     if (SHGetFileInfoA(name,
-        FILE_ATTRIBUTE_DIRECTORY,
-        &info,
-        sizeof(info),
-        SHGFI_SYSICONINDEX | SHGFI_ICON | SHGFI_USEFILEATTRIBUTES))
-    {
+                       FILE_ATTRIBUTE_DIRECTORY,
+                       &info,
+                       sizeof(info),
+                       SHGFI_SYSICONINDEX | SHGFI_ICON | SHGFI_USEFILEATTRIBUTES)) {
         icon = info.hIcon;
     }
 
@@ -162,8 +162,7 @@ HICON folderIcon()
 }
 
 // 获取文件夹类型
-std::string folderType()
-{
+std::string folderType() {
     std::string str = "folder";
     LPCSTR name = str.c_str();
 
@@ -171,43 +170,40 @@ std::string folderType()
 
     SHFILEINFOA info;
     if (SHGetFileInfoA(name,
-        FILE_ATTRIBUTE_DIRECTORY,
-        &info,
-        sizeof(info),
-        SHGFI_TYPENAME | SHGFI_USEFILEATTRIBUTES))
-    {
+                       FILE_ATTRIBUTE_DIRECTORY,
+                       &info,
+                       sizeof(info),
+                       SHGFI_TYPENAME | SHGFI_USEFILEATTRIBUTES)) {
         type = info.szTypeName;
     }
 
     return type;
 }
 
-HICON getLargeIcon(int index){
-        IImageList* g_hImageList256 = NULL;
+HICON getLargeIcon(int index) {
+    IImageList *g_hImageList256 = NULL;
 
-        SHGetImageList(SHIL_EXTRALARGE, IID_IImageList, (void**)&g_hImageList256);
+    SHGetImageList(SHIL_EXTRALARGE, IID_IImageList, (void **) &g_hImageList256);
 
 
-        HICON h;
+    HICON h;
 
-        HRESULT res=   g_hImageList256->GetIcon(index,ILD_IMAGE,&h);
-        if(res == S_OK){
-            return  h;
-        }else{
-          return NULL;
-        }
+    HRESULT res = g_hImageList256->GetIcon(index, ILD_IMAGE, &h);
+    if (res == S_OK) {
+        return h;
+    } else {
+        return NULL;
+    }
 
 }
 
 
+QPixmap getFileIcon(std::string path) {
 
-QPixmap getFileIcon(std::string path){
 
+    int index = 0;
 
-    int index=0;
-    HICON h = fileIcon(path,&index);
-
-    h = getLargeIcon(index);
+    HICON h = getLargeIcon(index);
 
     return QtWin::fromHICON(h);
 }

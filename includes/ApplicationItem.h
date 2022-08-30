@@ -21,9 +21,9 @@ typedef struct Item{
      */
     unsigned short index;
     /**
-     * @brief 类型，0代表可执行文件，1网页url，2自定义命令
+     * @brief 类型，-1其他不认识的类型，0代表可执行文件，1网页url，2自定义命令
      */
-    unsigned short type;
+    short type;
     /**
      * @breif icon icon地址
      */

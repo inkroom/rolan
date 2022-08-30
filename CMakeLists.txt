@@ -53,6 +53,9 @@ if (USE_STATIC)
     include_directories(${QT_STATIC_PATH}/include/QtCore ${QT_STATIC_PATH}/include/QtGui ${QT_STATIC_PATH}/include/QtWidgets)
 
     link_directories(${QT_STATIC_PATH}/lib/QtCore ${QT_STATIC_PATH}/lib/QtGui ${QT_STATIC_PATH}/lib/QtWidgets)
+
+    link_directories(${QT_STATIC_PATH}/plugins/imageformats/qgif ${QT_STATIC_PATH}/plugins/imageformats/qjpeg ${QT_STATIC_PATH}/plugins/imageformats/qicns ${QT_STATIC_PATH}/plugins/imageformats/qsvg)
+
     message("qt link ${QT_STATIC_PATH}/lib/QtCore")
 else ()
 
@@ -86,6 +89,11 @@ if (WIN32)
             )
     if (USE_STATIC)
     else ()
+        #        find_library(IMAGE_FORMAT $ENV{QT_DIR}/$ENV{QT_VERSION}/mingw73_64/plugins/imageformats)
+
+        #        link_directories($ENV{QT_DIR}/$ENV{QT_VERSION}/mingw73_64/plugins/imageformats)
+        #        target_link_libraries(${CMAKE_PROJECT_NAME} qgif qjpeg qicns qsvg)
+
         set(DEBUG_SUFFIX)
         if (MSVC AND CMAKE_BUILD_TYPE MATCHES "Debug")
             set(DEBUG_SUFFIX "d")
@@ -106,7 +114,15 @@ if (WIN32)
                     "${QT_INSTALL_PATH}/plugins/platforms/qwindows${DEBUG_SUFFIX}.dll"
                     "$<TARGET_FILE_DIR:${PROJECT_NAME}>/plugins/platforms/")
         endif ()
-
+        add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E make_directory
+                "$<TARGET_FILE_DIR:${PROJECT_NAME}>/plugins/imageformats/")
+        foreach (QT_IMG_FORMAT gif jpeg ico icns svg)
+            add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+                    COMMAND ${CMAKE_COMMAND} -E copy
+                    "${QT_INSTALL_PATH}/plugins/imageformats/q${QT_IMG_FORMAT}.dll"
+                    "$<TARGET_FILE_DIR:${PROJECT_NAME}>/plugins/imageformats/")
+        endforeach (QT_IMG_FORMAT)
         foreach (QT_LIB Core Gui Widgets)
             add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
                     COMMAND ${CMAKE_COMMAND} -E copy
