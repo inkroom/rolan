@@ -68,7 +68,7 @@ jobs:
         shell: cmd
         env:
           vc_arch: win32_mingw53
-          QT_DIR: ${{ RUNNER_WORKSPACE }}
+          # QT_DIR: ${{ RUNNER_WORKSPACE }}
           QT_VERSION: 5.9.8
         run: |
           env
