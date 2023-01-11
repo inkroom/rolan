@@ -32,3 +32,10 @@ jobs:
     - name: Build
       # Build your program with the given configuration
       run: cmake -S . -B build-out && cmake --build build-out && tree
+    - name: Tar
+      run: tar -czvf rolan.tar.gz build-out
+    - name: Create Release
+      uses: ncipollo/release-action@v1
+      with:
+        artifacts: "rolan.tar.gz"
+        token: ${{ secrets.YOUR_GITHUB_TOKEN }}
