@@ -68,8 +68,8 @@ jobs:
         shell: cmd
         env:
           vc_arch: win32_mingw53
-          # QT_DIR: ${{ RUNNER_WORKSPACE }}
-          QT_VERSION: 5.9.8
+          QT_DIR: ${{ env.Qt5_Dir }}
+          # QT_VERSION: ${{ env.QT_VERSION }}
         run: |
           env
           cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=${{env.BUILD_TYPE}}
