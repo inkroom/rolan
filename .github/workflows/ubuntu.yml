@@ -38,8 +38,7 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "rolan.tar.gz"
- windows:
-    name: windows
+  windows:
     # 运行平台， windows-latest目前是windows server 2019
     runs-on: windows-latest
     strategy:
