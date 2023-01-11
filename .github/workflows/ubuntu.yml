@@ -38,4 +38,3 @@ jobs:
       uses: ncipollo/release-action@v1
       with:
         artifacts: "rolan.tar.gz"
-        token: ${{ secrets.YOUR_GITHUB_TOKEN }}
